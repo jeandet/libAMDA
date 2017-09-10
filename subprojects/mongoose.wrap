@@ -1,0 +1,4 @@
+[wrap-git]
+directory=mongoose
+url=https://github.com/jeandet/mongoose
+revision=5f7dcea7d31f762e02edf307c0b3619e0f8990e2

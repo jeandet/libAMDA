@@ -1,0 +1,4 @@
+[wrap-git]
+directory=cpr
+url=https://github.com/jeandet/cpr
+revision=head
