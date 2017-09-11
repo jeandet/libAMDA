@@ -46,21 +46,21 @@ public:
                 parse_metadata(metadata,line);
             }
         }while(!file.eof() && line[0]=='#');
-
         auto data_columns = metadata["DATA_COLUMNS"];
-        data.NDims = std::count(data_columns.begin(), data_columns.end(), ',')-1;
+        data.NDims = std::count(data_columns.begin(), data_columns.end(), ',');
         data.metadata = std::move(metadata);
         std::string time;
-        double X,Y,Z;
+        double V;
         while(1)
         {
             std::stringstream linestream(line);
             std::chrono::system_clock::time_point tp;
             linestream >> date::parse("%Y-%m-%dT%T", tp); //slow
-            linestream >> X >> Y >> Z;
-            data.Values.push_back(X);
-            data.Values.push_back(Y);
-            data.Values.push_back(Z);
+            for(int i=0; i<data.NDims; i++)
+            {
+                linestream >> V;
+                data.Values.push_back(V);
+            }
             data.X.push_back(std::chrono::duration<double>(tp.time_since_epoch()).count() );
             if(unlikely(file.eof()))//I don't like this...
                 break;
@@ -91,7 +91,7 @@ private:
         auto pos = line.find(':');
         if(std::string::npos != pos)
         {
-            auto key = line.substr(1,pos);
+            auto key = line.substr(1,pos-1);
             auto value = line.substr(pos+1);
             strip(key);
             strip(value);

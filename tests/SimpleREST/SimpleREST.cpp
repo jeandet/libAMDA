@@ -56,7 +56,7 @@ protected:
 TEST_F(SimpleREST, vector)
 {
     std::istringstream sstart{ "2013-04-18 18:24:42.770911"};
-    std::istringstream sstop{"2013-04-20 18:24:42.770911" };
+    std::istringstream sstop{"2013-04-18 19:24:42.770911" };
     std::chrono::system_clock::time_point start;
     std::chrono::system_clock::time_point stop;
     sstart >> date::parse("%Y-%m-%d %T", start);
