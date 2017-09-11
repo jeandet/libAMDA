@@ -26,7 +26,8 @@
 #include <sstream>
 #include <chrono>
 #include <date.h>
-
+#define likely(x)      __builtin_expect(!!(x), 1)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
 class AMDAReaderPrivate
 {
 public:
@@ -45,6 +46,7 @@ public:
                 parse_metadata(metadata,line);
             }
         }while(!file.eof() && line[0]=='#');
+
         auto data_columns = metadata["DATA_COLUMNS"];
         data.NDims = std::count(data_columns.begin(), data_columns.end(), ',')-1;
         data.metadata = std::move(metadata);
@@ -54,16 +56,15 @@ public:
         {
             std::stringstream linestream(line);
             std::chrono::system_clock::time_point tp;
-            linestream >> date::parse("%Y-%m-%dT%T", tp);
+            linestream >> date::parse("%Y-%m-%dT%T", tp); //slow
             linestream >> X >> Y >> Z;
             data.Values.push_back(X);
             data.Values.push_back(Y);
             data.Values.push_back(Z);
             data.X.push_back(std::chrono::duration<double>(tp.time_since_epoch()).count() );
-            //data.X.push_back(decodeTimeFromEpoch(time));
-            if(file.eof())
+            if(unlikely(file.eof()))//I don't like this...
                 break;
-            std::getline(file,line);
+            std::getline(file,line);//slow
         }
         return data;
     }
@@ -83,21 +84,6 @@ private:
     {
         auto end_pos = std::remove(str.begin(), str.end(), ' ');
         str.erase(end_pos, str.end());
-    }
-
-    inline double decodeTimeFromEpoch(const std::string& time)
-    {
-        struct tm t;
-        time_t t_of_day;
-        t.tm_year=(1000*(time[0] & 0x0F)) + (100*(time[1] & 0x0F)) + (10*(time[2] & 0x0F)) + ((time[3] & 0x0F)) -1900;
-        t.tm_mon=(10*(time[5] & 0x0F)) + ((time[6] & 0x0F));
-        t.tm_mday=(10*(time[8] & 0x0F)) + ((time[9] & 0x0F));
-        t.tm_hour=(10*(time[11] & 0x0F)) + ((time[12] & 0x0F));
-        t.tm_min=(10*(time[14] & 0x0F)) + ((time[15] & 0x0F));
-        t.tm_sec=(10*(time[17] & 0x0F)) + ((time[18] & 0x0F));
-        double ms=(100*(time[20] & 0x0F)) + (10*(time[21] & 0x0F)) + ((time[22] & 0x0F));
-        t_of_day = mktime(&t);
-        return (double)t_of_day+((double)ms*(double)0.001);
     }
 
     void parse_metadata(std::unordered_map<std::string,std::string>& metadata, const std::string& line)

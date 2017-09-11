@@ -24,9 +24,11 @@ tests = [
   [['tests/SimpleREST/SimpleREST.cpp'], 'SimpleREST', 'Simple REST Request']
 ]
 
+test_src_dir = '-DTEST_SRC_DIR="@0@/tests/"'.format(meson.current_source_dir())
 
 foreach unit_test : tests
-  test_exe = executable(unit_test[1],unit_test[0] ,
-                          dependencies : [libAMDA, gtest_dep])
+  test_exe = executable(unit_test[1],unit_test[0],
+                          dependencies : [libAMDA, gtest_dep],
+                          cpp_args : [test_src_dir])
   test(unit_test[2], test_exe)
 endforeach

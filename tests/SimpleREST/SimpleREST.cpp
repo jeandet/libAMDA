@@ -22,10 +22,13 @@
 #include "gtest/gtest.h"
 #include "AMDA_Rest.h"
 #include <vector>
+#include <date.h>
+#include <sstream>
 
 
 namespace {
-class SimpleREST : public ::testing::Test {
+class SimpleREST : public ::testing::Test
+{
 protected:
     SimpleREST() {
         // You can do set-up work for each test here.
@@ -50,14 +53,25 @@ protected:
 };
 };
 
-TEST_F(SimpleREST, vector) {
-    auto data = AMDA_REST::get(0.1,0.2);
-    std::cout << "X[0] = " << data.X[0] << std::endl;
+TEST_F(SimpleREST, vector)
+{
+    std::istringstream sstart{ "2013-04-18 18:24:42.770911"};
+    std::istringstream sstop{"2013-04-20 18:24:42.770911" };
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point stop;
+    sstart >> date::parse("%Y-%m-%d %T", start);
+    sstop >> date::parse("%Y-%m-%d %T", stop);
+    auto data = AMDA_REST::get(
+        std::chrono::duration<double>(start.time_since_epoch()).count(),
+        std::chrono::duration<double>(stop.time_since_epoch()).count()
+        );
+    //std::cout << "X[0] = " << data.X[0] << std::endl;
 }
 
 
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

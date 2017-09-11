@@ -25,29 +25,51 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
+#include <date.h>
+#include <math.h>
 
+//"http://amdatest.irap.omp.eu/php/rest//getParameter.php?startTime=2013-01-02%2001:06:12&stopTime=2013-01-06%2023:46:12&parameterID=c1_b_gse&"
+//http://amdatest.irap.omp.eu/php/rest//getParameter.php?startTime=2013-04-18 18:24:42.770911&stopTime=2013-04-19 18:24:42.770911&parameterID=c1_b_gse&
 class AMDA_RESTPrivate
 {
+    inline void clean_url(std::string& str)
+    {
+        auto pos = str.begin();
+        while(*pos != 'h' && pos!=str.end())pos++;
+        str.erase(str.begin(),pos);
+    }
 public:
     AMDA_RESTPrivate()=default;
     Data get(double tstart, double tstop)
     {
-        std::cout << "DL file" << std::endl;
-        auto t1 = std::chrono::high_resolution_clock::now();
-        auto r = cpr::Get(cpr::Url{"http://amdatest.irap.omp.eu/CU2016/data/WSRESULT/c1_b_gse-1357088772-1357515972.txt"});
-        auto t2 = std::chrono::high_resolution_clock::now();
-        auto file = r.text;
-        auto fstr = std::stringstream(file);
-        std::cout << "Done, Decoding" << std::endl;
-        auto data = AMDAReader::reads(fstr);
-        auto t3 = std::chrono::high_resolution_clock::now();
-        auto dlduration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
-        auto decodeduration = std::chrono::duration_cast<std::chrono::microseconds>(t3-t2).count();
-        std::cout << "DL took " << dlduration/1000 << "ms   Decode took " << decodeduration/1000 << "ms" << std::endl;
-        std::cout << "Vector size:" << data.X.size()/1000 << "Kpoints" << std::endl;
-        std::cout << "Decode efficiency " << data.X.size()/(decodeduration/1000) << "Kpoints/s" << std::endl;
-
-        return data;
+        std::stringstream start;
+        std::stringstream stop;
+        std::chrono::seconds start_sec{static_cast<long long>(floor(tstart))};
+        std::chrono::seconds stop_sec{static_cast<long long>(ceil(tstop))};
+        std::chrono::system_clock::time_point start_tp{start_sec};
+        std::chrono::system_clock::time_point stop_tp{stop_sec};
+        using namespace date;
+        start << start_tp;
+        stop << stop_tp;
+        auto r = cpr::Get(
+            cpr::Url{"http://amdatest.irap.omp.eu/php/rest//getParameter.php"},
+            cpr::Parameters{
+                {"startTime", start.str()},
+                {"stopTime",  stop.str()},
+                {"parameterID", "c1_b_gse"}
+                });
+        if(r.status_code == 200)
+        {
+            auto file = r.text;
+            clean_url(file);
+            r = cpr::Get(file);
+            if(r.status_code == 200)
+            {
+                auto fstr = std::stringstream(r.text);
+                return AMDAReader::reads(fstr);
+            }
+        }
+        return Data();
     }
 };
 

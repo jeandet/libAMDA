@@ -52,7 +52,7 @@ protected:
 };
 
 TEST_F(VectorRead, vector) {
-    auto data = AMDAReader::readf("/Users/jeandet/Documents/Prog/libAMDA/tests/VectorRead/vector.txt");
+    auto data = AMDAReader::readf(TEST_SRC_DIR+std::string("VectorRead/vector.txt"));
     std::cout << "X[0] = " << data.X[0] << std::endl;
     std::cout << "X[0] = " << data.Values[0] << std::endl;
 }
