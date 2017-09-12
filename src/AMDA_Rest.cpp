@@ -40,7 +40,7 @@ class AMDA_RESTPrivate
     }
 public:
     AMDA_RESTPrivate()=default;
-    Data get(double tstart, double tstop)
+    Data get(double tstart, double tstop, const std::string& parameterID)
     {
         std::stringstream start;
         std::stringstream stop;
@@ -56,7 +56,7 @@ public:
             cpr::Parameters{
                 {"startTime", start.str()},
                 {"stopTime",  stop.str()},
-                {"parameterID", "c1_b_gse"}
+                {"parameterID", parameterID}
                 });
         if(r.status_code == 200)
         {
@@ -78,7 +78,7 @@ AMDA_REST::AMDA_REST()
 {
 }
 
-Data AMDA_REST::get(double tstart, double tstop)
+Data AMDA_REST::get(double tstart, double tstop, const std::string& parameterID)
 {
-    return self().impl->get(tstart, tstop);
+    return self().impl->get(tstart, tstop, parameterID);
 }

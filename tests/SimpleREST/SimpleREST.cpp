@@ -56,16 +56,16 @@ protected:
 TEST_F(SimpleREST, vector)
 {
     std::istringstream sstart{ "2013-04-18 18:24:42.770911"};
-    std::istringstream sstop{"2013-04-18 19:24:42.770911" };
+    std::istringstream sstop{"2013-04-19 19:24:42.770911" };
     std::chrono::system_clock::time_point start;
     std::chrono::system_clock::time_point stop;
     sstart >> date::parse("%Y-%m-%d %T", start);
     sstop >> date::parse("%Y-%m-%d %T", stop);
     auto data = AMDA_REST::get(
         std::chrono::duration<double>(start.time_since_epoch()).count(),
-        std::chrono::duration<double>(stop.time_since_epoch()).count()
+        std::chrono::duration<double>(stop.time_since_epoch()).count(),
+        "c1_b_gse"
         );
-    //std::cout << "X[0] = " << data.X[0] << std::endl;
 }
 
 

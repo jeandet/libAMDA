@@ -36,7 +36,7 @@ public:
     AMDA_REST& operator=(AMDA_REST const&) = delete;
     AMDA_REST& operator=(AMDA_REST &&) = delete;
 
-    static Data get(double tstart, double tstop);
+    static Data get(double tstart, double tstop, const std::string& parameterID);
 private:
     AMDA_REST();
     static AMDA_REST& self()
