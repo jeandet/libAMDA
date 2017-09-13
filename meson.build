@@ -21,7 +21,8 @@ gtest_dep = dependency('gtest', required : true, main : false, fallback:['gtest'
 
 tests = [
   [['tests/VectorRead/vector_read.cpp'], 'VectorRead', 'Simple Vector Read'],
-  [['tests/SimpleREST/SimpleREST.cpp'], 'SimpleREST', 'Simple REST Request']
+  [['tests/SimpleREST/SimpleREST.cpp'], 'SimpleREST', 'Simple REST Request'],
+  [['tests/RandomAMDA/RandomAMDA.cpp'], 'RandomAMDA', 'Random REST Requests']
 ]
 
 test_src_dir = '-DTEST_SRC_DIR="@0@/tests/"'.format(meson.current_source_dir())

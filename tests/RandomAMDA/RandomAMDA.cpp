@@ -22,20 +22,22 @@
 #include "gtest/gtest.h"
 #include "AMDA_Rest.h"
 #include <vector>
+#include <utility>
+#include <memory>
 #include <date.h>
 #include <sstream>
 #include <random>
 
 
 namespace {
-class SimpleREST : public ::testing::Test
+class RandomAMDA : public ::testing::TestWithParam<int>
 {
 protected:
-    SimpleREST() {
+    RandomAMDA() {
         // You can do set-up work for each test here.
     }
 
-    virtual ~SimpleREST() {
+    virtual ~RandomAMDA() {
         // You can do clean-up work that doesn't throw exceptions here.
     }
 
@@ -54,18 +56,27 @@ protected:
 };
 };
 
-TEST_F(SimpleREST, simpleGet)
+const std::vector<int> testInputs(100);
+
+
+TEST_P(RandomAMDA, randomGet)
 {
-    std::istringstream sstart{ "2013-04-18 18:24:42.770911"};
-    std::istringstream sstop{"2013-04-19 19:24:42.770911" };
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, 24*365*2);
+    std::istringstream sstart{ "2012-01-01 18:24:42.770911"};
     std::chrono::system_clock::time_point start;
     std::chrono::system_clock::time_point stop;
     sstart >> date::parse("%Y-%m-%d %T", start);
-    sstop >> date::parse("%Y-%m-%d %T", stop);
-    auto data = AMDA_REST::get(start, stop, "c1_b_gse");
+    start += std::chrono::hours(dis(gen));
+    stop = start + std::chrono::hours(5*24);
+    using namespace date;
+    std::cout << start << " " << stop << std::endl;
+    //auto data_ref = AMDA_REST::get(start, stop, "c1_b_gse");
 }
 
 
+INSTANTIATE_TEST_CASE_P(random,RandomAMDA,::testing::ValuesIn(testInputs));
 
 
 int main(int argc, char **argv)

@@ -25,6 +25,7 @@
 #include <spimpl.h>
 #include <data.h>
 #include <string>
+#include <chrono>
 
 class AMDA_RESTPrivate;
 
@@ -37,6 +38,14 @@ public:
     AMDA_REST& operator=(AMDA_REST &&) = delete;
 
     static Data get(double tstart, double tstop, const std::string& parameterID);
+    static Data get(const std::chrono::system_clock::time_point& tstart, const std::chrono::system_clock::time_point& tstop, const std::string& parameterID)
+        {
+            return AMDA_REST::get(
+                                    std::chrono::duration<double>(tstart.time_since_epoch()).count(),
+                                    std::chrono::duration<double>(tstop.time_since_epoch()).count(),
+                                    parameterID
+                                   );
+        }
 private:
     AMDA_REST();
     static AMDA_REST& self()
